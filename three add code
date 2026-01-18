@@ -1,0 +1,55 @@
+#include <iostream>
+#include <string>
+#include <stack>
+using namespace std;
+
+// Function to return operator precedence
+int prec(char op) {
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
+    return 0;
+}
+
+// Generate Three-Address Code
+void generateTAC(string expr) {
+    stack<char> ops;      // operator stack
+    stack<string> vals;   // operand stack
+    int temp = 1;
+
+    for (char ch : expr) {
+        if (ch == ' ') continue;       // skip spaces
+        if (isalnum(ch)) vals.push(string(1, ch));  // operand
+        else { // operator
+            while (!ops.empty() && prec(ch) <= prec(ops.top())) {
+                char op = ops.top(); ops.pop();
+                string b = vals.top(); vals.pop();
+                string a = vals.top(); vals.pop();
+                string t = "t" + to_string(temp++);
+                cout << t << " = " << a << " " << op << " " << b << endl;
+                vals.push(t);
+            }
+            ops.push(ch);
+        }
+    }
+
+    // Remaining operators
+    while (!ops.empty()) {
+        char op = ops.top(); ops.pop();
+        string b = vals.top(); vals.pop();
+        string a = vals.top(); vals.pop();
+        string t = "t" + to_string(temp++);
+        cout << t << " = " << a << " " << op << " " << b << endl;
+        vals.push(t);
+    }
+}
+
+int main() {
+    string expr;
+    cout << "Enter arithmetic expression: ";
+    getline(cin, expr);
+
+    cout << "\nThree-Address Code:\n";
+    generateTAC(expr);
+
+    return 0;
+}
