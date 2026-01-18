@@ -1,0 +1,61 @@
+#include <iostream>
+#include <stack>
+#include <string>
+using namespace std;
+
+// Operator precedence
+int precedence(char op) {
+    return (op == '+' || op == '-') ? 1 : (op == '*' || op == '/') ? 2 : 0;
+}
+
+// Generate triples
+void generateTriples(const string& expr) {
+    stack<char> ops;
+    stack<string> vals;
+    int temp = 0;
+
+    for (char ch : expr) {
+        if (ch == ' ') continue;
+
+        if (isalnum(ch)) {
+            vals.push(string(1, ch)); // operand
+        } else if (ch == '(') {
+            ops.push(ch);
+        } else if (ch == ')') {
+            while (!ops.empty() && ops.top() != '(') {
+                char op = ops.top(); ops.pop();
+                string b = vals.top(); vals.pop();
+                string a = vals.top(); vals.pop();
+                cout << "(" << op << ", " << a << ", " << b << ")\n";
+                vals.push("t" + to_string(temp++));
+            }
+            ops.pop(); // remove '('
+        } else { // operator
+            while (!ops.empty() && ops.top() != '(' && precedence(ch) <= precedence(ops.top())) {
+                char op = ops.top(); ops.pop();
+                string b = vals.top(); vals.pop();
+                string a = vals.top(); vals.pop();
+                cout << "(" << op << ", " << a << ", " << b << ")\n";
+                vals.push("t" + to_string(temp++));
+            }
+            ops.push(ch);
+        }
+    }
+
+    while (!ops.empty()) { // remaining operators
+        char op = ops.top(); ops.pop();
+        string b = vals.top(); vals.pop();
+        string a = vals.top(); vals.pop();
+        cout << "(" << op << ", " << a << ", " << b << ")\n";
+        vals.push("t" + to_string(temp++));
+    }
+}
+
+int main() {
+    string expr;
+    cout << "Enter arithmetic expression: ";
+    getline(cin, expr);
+
+    cout << "\nTriples:\n";
+    generateTriples(expr);
+}
